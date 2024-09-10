@@ -104,13 +104,16 @@ void ajouterPlusieursTaches(){
 
 // fonction d'affichage des taches
 void afficher(){
+    char time[20];
     for(int i=0; i<taille; i++){
         printf(COLOR_VIOLET "--- tache %d ---\n" COLOR_RESET, i+1);
         printf("Idintifiant de tache: %s\n", taches[i].id);
         printf("titre: %s\n", taches[i].titre);
         printf("description: %s\n", taches[i].description);
         printf("status: %s\n", taches[i].status);
-        printf("deadline: %ld\n", taches[i].deadline);
+
+        strftime(time, 20, "%Y-%m-%d %H:%M:%S", localtime(&taches[i].deadline));
+        printf("deadline: %ld\n", time);
     }
 }
 
