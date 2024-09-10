@@ -23,6 +23,25 @@ Tache taches[99];
 int taille = 0;
 Tache tmp; // variable temporaire pour echanger les valeur entre 2 variables
 
+// format timestamp from ms to specific format
+void format_timestamp(long meliseconds, char * format){
+    time_t seconds = meliseconds / 1000;
+    struct tm * timeinfo;
+    char buffer[40];
+    timeinfo = gmtime(&seconds);
+
+    if(timeinfo == NULL){
+        printf(COLOR_RED "error converting timestamp \n" COLOR_RESET);
+        return;
+    }
+    if(strftime(buffer, sizeof(buffer), format, timeinfo) == 0){
+        printf(COLOR_RED "error strftime \n" COLOR_RESET);
+        return;
+    }
+    printf("deadline: %s\n", buffer);
+
+}
+
 // generer un id de 4 chiffres aleatoires
 void generateID(int position){
     char chiffres[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z','A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
@@ -66,11 +85,13 @@ void ajouterTache(){
     printf("                      ajouter une tache                       \n");
     printf("--------------------------------------------------------------\n" COLOR_RESET);
     int hours;
+    time_t now;
+    struct tm * dateTimeNow = localtime(&now);
     printf("donner les informations de votre tache \n");
     printf("titre: "); scanf(" %[^\n]s", taches[taille].titre);
     printf("description: "); scanf(" %[^\n]s", taches[taille].description);
     printf("entrer un deadline en heures: "); scanf("%d", &hours);
-    taches[taille].deadline = ( hours * 3600000 ) + time(NULL);
+    taches[taille].deadline = ( hours * 3600000 ) + dateTimeNow;
     strcpy(taches[taille].status, "a realiser");
     generateID(taille);
 
@@ -86,13 +107,15 @@ void ajouterPlusieursTaches(){
     printf("                   ajouter plusieurs tache                    \n");
     printf("--------------------------------------------------------------\n" COLOR_RESET);
     int nbre, hours;
+    time_t now;
+    struct tm * dateTimeNow = localtime(&now);
     printf("combien de tache voulez-vous ajoutez? "); scanf("%d", &nbre);
     for(int i=0; i<nbre; i++){
         printf("donner les informations de votre tache \n");
         printf("titre: "); scanf(" %[^\n]s", taches[taille + i].titre);
         printf("description: "); scanf(" %[^\n]s", taches[taille + i].description);
         printf("entrer un deadline en heures: "); scanf("%d", &hours);
-        taches[taille + i].deadline = ( hours * 3600000 ) + time(NULL);
+        taches[taille + i].deadline = ( hours * 3600000 ) + dateTimeNow;
         strcpy(taches[taille + i].status, "a realiser");
         generateID(taille + i);
 
@@ -111,9 +134,7 @@ void afficher(){
         printf("titre: %s\n", taches[i].titre);
         printf("description: %s\n", taches[i].description);
         printf("status: %s\n", taches[i].status);
-
-        strftime(time, 20, "%Y-%m-%d %H:%M:%S", localtime(&taches[i].deadline));
-        printf("deadline: %ld\n", time);
+        format_timestamp(taches[i].deadline, "%Y-%m-%d %H:%M:%S");
     }
 }
 
@@ -422,7 +443,6 @@ void menu(){
                 printf(COLOR_RED "choix ne pas valid...\n" COLOR_RESET);
                 break;
         }
-
     }
     while(choice != 8);
 }
