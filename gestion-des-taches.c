@@ -21,6 +21,7 @@ typedef struct {
 
 Tache taches[99];
 int taille = 0;
+Tache tmp; // variable temporaire pour echanger les valeur entre 2 variables
 
 // generer un id de 4 chiffres aleatoires
 void generateID(int position){
@@ -101,6 +102,62 @@ void ajouterPlusieursTaches(){
     taille = taille + nbre;
 }
 
+// fonction d'affichage des taches
+void afficher(){
+    for(int i=0; i<taille; i++){
+        printf(COLOR_VIOLET "--- tache %d ---\n" COLOR_RESET, i+1);
+        printf("Idintifiant de tache: %s\n", taches[i].id);
+        printf("titre: %s\n", taches[i].titre);
+        printf("description: %s\n", taches[i].description);
+        printf("status: %s\n", taches[i].status);
+        printf("deadline: %ld\n", taches[i].deadline);
+    }
+}
+
+// afficher les taches par ordre croissant de titre
+void triParTitre(){
+    for(int i=1; i<taille; i++){
+        if(strcmp(taches[i - 1].titre, taches[i].titre) >= 0){
+            tmp = taches[i];
+            taches[i] = taches[i - 1];
+            taches[i - 1] = tmp;
+        }
+    }
+    afficher();
+}
+
+// afficher les taches par ordre croissant de deadline
+void triParDeadline(){
+    for(int i=1; i<taille; i++){
+        if(taches[i - 1].deadline < taches[i].deadline){
+            tmp = taches[i];
+            taches[i] = taches[i - 1];
+            taches[i - 1] = tmp;
+        }
+    }
+    afficher();
+}
+
+// afficher les taches qui a au moins 3 jours pour finit
+void triParDeadlineTroisJourAuMoins(){
+    Tache taches_moins_3_jours[taille];
+    int counter = 0;
+    for(int i=0; i<taille; i++){
+        if((taches[i].deadline - time(NULL)) <= 259200000 ){
+            taches_moins_3_jours[counter] = taches[i];
+            counter++;
+        }
+    }
+    for(int i=0; i<counter; i++){
+        printf(COLOR_VIOLET "--- tache %d ---\n" COLOR_RESET, i+1);
+        printf("Idintifiant de tache: %s\n", taches_moins_3_jours[i].id);
+        printf("titre: %s\n", taches_moins_3_jours[i].titre);
+        printf("description: %s\n", taches_moins_3_jours[i].description);
+        printf("status: %s\n", taches_moins_3_jours[i].status);
+        printf("deadline: %ld\n", taches_moins_3_jours[i].deadline);
+    }
+}
+
 // fonction pour afficher tous les taches
 void afficherTaches(){
     system("cls");
@@ -111,14 +168,27 @@ void afficherTaches(){
         printf(COLOR_RED "aucun tache availaible, esseyez d'ajoutez une\n" COLOR_RESET);
         return;
     }
-    for(int i=0; i<taille; i++){
-        printf(COLOR_VIOLET "--- tache %d ---\n" COLOR_RESET, i+1);
-        printf("Idintifiant de tache: %s\n", taches[i].id);
-        printf("titre: %s\n", taches[i].titre);
-        printf("description: %s\n", taches[i].description);
-        printf("status: %s\n", taches[i].status);
-        printf("deadline: %ld\n", taches[i].deadline);
+
+    int affichage_type, hours;
+    do{
+        printf(COLOR_YELLOW "1- afficher par titre.\n");
+        printf("2- afficher par deadline.\n");
+        printf("3- afficher les taches dont le deadline est dans 3 jours ou moins.\n");
+        printf("0- retourner au menu principale.\n" COLOR_RESET);
+        printf("entrer votre choix: "); scanf("%d", &affichage_type);
+
+        switch(affichage_type){
+            case 1: triParTitre(); return; break;
+            case 2: triParDeadline(); return; break;
+            case 3: triParDeadlineTroisJourAuMoins(); return; break;
+            case 0:
+                return; break;
+            default:
+                printf(COLOR_RED "choix ne pas valid...\n" COLOR_RESET);
+                break;
+        }
     }
+    while(affichage_type != 3);
 }
 
 // fonction pour rechercher une tache
@@ -345,6 +415,7 @@ void menu(){
                 exit(1);
                 break;
             default:
+                system("cls");
                 printf(COLOR_RED "choix ne pas valid...\n" COLOR_RESET);
                 break;
         }
